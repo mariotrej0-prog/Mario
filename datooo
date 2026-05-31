@@ -1,0 +1,42 @@
+# Implementation Prompt: Revenue Analytics Dashboard - Portfolio & Maintenance Portal Extension
+
+## Overview
+Develop a public-facing "Portfolio & Maintenance Portal" module for the existing io SaaS app. This module serves as a B2C storefront for freelance services and a self-service gateway for clients to subscribe to "Premium Maintenance Plans." Upon subscription, the system must perform a full automated provisioning flow.
+
+## Core Functionality
+1. Public Portfolio Display: A clean, static-optimized grid showcasing service offerings and case studies.
+2. Premium Maintenance Portal: A tiered pricing page with native Stripe checkout integration.
+3. Automated Onboarding (The "Bridge"):
+   - Post-payment webhook listener: Triggered upon successful Stripe subscription.
+   - Database Provisioning: Automatically create a client record in the Postgres 'Users' table.
+   - Credential Generation: Auto-generate secure login credentials and trigger a "Welcome" email via the transactional email service to the new client.
+4. Ecosystem Synchronization: Ensure new records immediately feed into the existing "CLV Map" and "Churn Risk" logic in the Analytics Dashboard.
+
+## Visual Design (Theme: Arctic)
+- Aesthetic: Minimalist, high-whitespace, high-contrast typography.
+- Components: Subtle card-based layouts for pricing tiers and portfolio items.
+- Primary Buttons: Use #2B7FE0 (Blue) for all CTA actions (e.g., "Subscribe Now").
+- Typography: Focus on clean sans-serif fonts for professional readability.
+
+## User Flow & Logic
+1. Guest visits Portfolio -> Selects plan -> Stripe Checkout.
+2. Stripe Webhook confirms payment -> Backend creates Postgres user record.
+3. System assigns the client a unique Role ("Client") allowing access only to their specific data views.
+4. Client receives automated email with login credentials.
+5. Client appears in the admin's revenue overview and CLV maps immediately upon login.
+
+## Data & Integration Requirements
+- Securely handle Stripe Webhook events (`checkout.session.completed`) to trigger DB writes.
+- Role-Based Access Control (RBAC): Ensure clients cannot access administrative analytics; restrict their view to their own Stripe transaction logs and Postgres metrics.
+- SEO Optimization: Ensure service and portfolio pages are served as high-speed static content.
+- Database Schema: Update 'Users' table to handle the new "Role" attribute (Admin vs. Client) and foreign key relationships for Stripe Customer IDs.
+
+## Implementation Steps
+1. Build the frontend for Portfolio and Pricing tiers using the "Arctic" design system.
+2. Integrate Stripe Checkout specifically for plan subscriptions.
+3. Configure the webhook event handler to automate:
+   - User creation in Postgres.
+   - Assignment of access permissions.
+   - Automated welcome/credential email dispatch.
+4. Update the dashboard query layer to filter data views based on the authenticated user's Role (Admin sees all; Client sees only their own data).
+5. Verify parity between new client records and existing "Churn Risk" analysis trackers.
